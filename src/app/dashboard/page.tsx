@@ -65,7 +65,7 @@ export default function DashboardPage() {
         user_id: user?.id,
         account_name: modalData.merchant_name,
         provider: "other",
-        qris_image_url: modalData.merchant_qris_url || null,
+        qr_image_url: modalData.merchant_qris_url || null,
         qr_data: modalData.merchant_qr_data || null,
       });
 
