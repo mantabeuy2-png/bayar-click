@@ -14,6 +14,11 @@ export default function PaymentPage() {
   const [paymentLink, setPaymentLink] = useState<any>(null);
   const [merchant, setMerchant] = useState<any>(null);
   const [qrDataUrl, setQrDataUrl] = useState("");
+  const [payerName, setPayerName] = useState("");
+  const [payerNote, setPayerNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     if (!shortUrl) return;
@@ -72,6 +77,32 @@ export default function PaymentPage() {
     fetchData();
   }, [shortUrl]);
 
+  const handlePaid = async () => {
+    setSubmitting(true);
+    setSubmitError("");
+
+    const supabase = createSupabaseClientClient();
+    const { error: txErr } = await supabase.from("transactions").insert({
+      payment_link_id: paymentLink?.id,
+      merchant_id: merchant?.id,
+      external_id: `PAID-${shortUrl}-${Date.now()}`,
+      amount: paymentLink?.amount || 0,
+      status: "pending",
+      payer_name: payerName || null,
+      payer_note: payerNote || null,
+      validation_method: "manual",
+    });
+
+    if (txErr) {
+      setSubmitError("Gagal mengirim laporan. Coba lagi.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitted(true);
+    setSubmitting(false);
+  };
+
   if (loading) {
     return (
       <div style={{
@@ -84,6 +115,41 @@ export default function PaymentPage() {
         color: "#64748b"
       }}>
         ⏳ Memuat halaman pembayaran...
+      </div>
+    );
+  }
+
+  if (submitted) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+        padding: 20,
+      }}>
+        <div style={{
+          width: "100%",
+          maxWidth: 420,
+          background: "#fff",
+          borderRadius: 20,
+          padding: 40,
+          border: "1px solid #e2e8f0",
+          textAlign: "center"
+        }}>
+          <div style={{ fontSize: "3rem", marginBottom: 16 }}>✅</div>
+          <h2 style={{ fontSize: "1.3rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>
+            Laporan Terkirim!
+          </h2>
+          <p style={{ fontSize: "0.88rem", color: "#64748b", lineHeight: 1.6 }}>
+            Laporan pembayaran kamu udah dikirim ke penjual.
+            Mereka akan konfirmasi manual setelah dana masuk.
+          </p>
+          <p style={{ fontSize: "0.82rem", color: "#94a3b8", marginTop: 16 }}>
+            Simpan bukti transfer sebagai referensi.
+          </p>
+        </div>
       </div>
     );
   }
@@ -228,23 +294,101 @@ export default function PaymentPage() {
           </div>
         )}
 
-        <div style={{
-          marginTop: 24,
-          padding: 16,
-          background: "#f8fafc",
-          borderRadius: 12,
-          textAlign: "left",
-          fontSize: "0.82rem",
-          color: "#475569",
-          lineHeight: 1.7
-        }}>
-          <div style={{ fontWeight: 600, marginBottom: 8, color: "#334155" }}>📌 Cara Bayar:</div>
-          1. Buka aplikasi GoPay / BCA / DANA / OVO<br />
-          2. Pilih Scan QR / Bayar QRIS<br />
-          3. Scan kode QR di atas<br />
-          4. Konfirmasi pembayaran
+          {submitError && (
+            <div style={{
+              padding: "10px 14px",
+              background: "#fef2f2",
+              borderRadius: 10,
+              color: "#dc2626",
+              fontSize: "0.8rem",
+              marginBottom: 16,
+              marginTop: 16,
+            }}>
+              {submitError}
+            </div>
+          )}
+
+          <div style={{
+            marginTop: 24,
+            padding: 16,
+            background: "#f8fafc",
+            borderRadius: 12,
+            textAlign: "left",
+            fontSize: "0.82rem",
+            color: "#475569",
+            lineHeight: 1.7
+          }}>
+            <div style={{ fontWeight: 600, marginBottom: 8, color: "#334155" }}>📌 Cara Bayar:</div>
+            1. Buka aplikasi GoPay / BCA / DANA / OVO<br />
+            2. Pilih Scan QR / Bayar QRIS<br />
+            3. Scan kode QR di atas<br />
+            4. Transfer sesuai nominal<br />
+            5. Klik "Saya Sudah Bayar" di bawah
+          </div>
+
+          {/* Report payment form */}
+          <div style={{
+            marginTop: 20,
+            padding: 16,
+            background: "#f0fdf4",
+            borderRadius: 12,
+            border: "1px solid #bbf7d0",
+          }}>
+            <div style={{ fontWeight: 600, fontSize: "0.85rem", color: "#166534", marginBottom: 12 }}>
+              ✅ Sudah bayar? Lapor di sini
+            </div>
+            <input
+              value={payerName}
+              onChange={(e) => setPayerName(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 10,
+                border: "1px solid #bbf7d0",
+                fontSize: "0.85rem",
+                outline: "none",
+                marginBottom: 8,
+                boxSizing: "border-box",
+              }}
+              placeholder="Nama kamu (opsional)"
+            />
+            <textarea
+              value={payerNote}
+              onChange={(e) => setPayerNote(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 10,
+                border: "1px solid #bbf7d0",
+                fontSize: "0.85rem",
+                outline: "none",
+                minHeight: 60,
+                resize: "vertical",
+                marginBottom: 12,
+                boxSizing: "border-box",
+              }}
+              placeholder="Catatan (opsional)"
+            />
+            <button
+              onClick={handlePaid}
+              disabled={submitting}
+              style={{
+                width: "100%",
+                padding: "12px 28px",
+                borderRadius: 99,
+                border: "none",
+                background: submitting ? "#86efac" : "#16a34a",
+                color: "#fff",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                cursor: submitting ? "not-allowed" : "pointer",
+                opacity: submitting ? 0.7 : 1,
+              }}
+            >
+              {submitting ? "Mengirim..." : "Saya Sudah Bayar ✅"}
+            </button>
+          </div>
         </div>
-      </div>
     </div>
   );
 }
