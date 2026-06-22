@@ -67,8 +67,8 @@ export default function DashboardPage() {
 
     if (modalMode === "payment-link") {
       const { error } = await supabase.from("payment_links").insert({
-        merchant_id: null,
-        name: modalData.name,
+        merchant_id: merchants?.[0]?.id || null,
+        title: modalData.name,
         description: modalData.description,
         amount: modalData.amount ? parseFloat(modalData.amount) : null,
         short_url: Math.random().toString(36).substring(2, 8),
