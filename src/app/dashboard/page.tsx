@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [saveError, setSaveError] = useState("");
   const [merchants, setMerchants] = useState<any[]>([]);
   const [paymentLinks, setPaymentLinks] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
   const router = useRouter();
 
@@ -54,10 +55,30 @@ export default function DashboardPage() {
     if (data) setPaymentLinks(data);
   };
 
+  const fetchTransactions = async () => {
+    const supabase = createSupabaseClientClient();
+    const { data } = await supabase.from("transactions").select("*").order("created_at", { ascending: false });
+    if (data) setTransactions(data);
+  };
+
   useEffect(() => {
     fetchMerchants();
     fetchPaymentLinks();
+    fetchTransactions();
+    fetchTransactions();
   }, []);
+
+  const confirmTransaction = async (txId: string) => {
+    const supabase = createSupabaseClientClient();
+    await supabase.from("transactions").update({ status: "paid", paid_at: new Date().toISOString(), confirmed_by: user?.id }).eq("id", txId);
+    fetchTransactions();
+  };
+
+  const rejectTransaction = async (txId: string) => {
+    const supabase = createSupabaseClientClient();
+    await supabase.from("transactions").update({ status: "failed" }).eq("id", txId);
+    fetchTransactions();
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -103,6 +124,7 @@ export default function DashboardPage() {
     setModalData({ name: "", description: "", amount: "", merchant_name: "", merchant_qris_url: "", merchant_qr_data: "" });
     fetchMerchants();
     fetchPaymentLinks();
+    fetchTransactions();
   };
 
   const handleLogout = async () => {
@@ -456,16 +478,65 @@ export default function DashboardPage() {
             border: "1px solid #e2e8f0",
             padding: 24,
           }}>
-            <div style={{
-              padding: 60,
-              textAlign: "center",
-              color: "#94a3b8",
-              fontSize: "0.88rem",
-              border: "2px dashed #e2e8f0",
-              borderRadius: 12,
-            }}>
-              💳 Belum ada transaksi.
-            </div>
+            {transactions.length === 0 ? (
+              <div style={{
+                padding: 60,
+                textAlign: "center",
+                color: "#94a3b8",
+                fontSize: "0.88rem",
+                border: "2px dashed #e2e8f0",
+                borderRadius: 12,
+              }}>
+                💳 Belum ada transaksi.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {transactions.map((tx) => (
+                  <div key={tx.id} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    padding: "12px 16px",
+                    borderRadius: 12,
+                    border: "1px solid #e2e8f0",
+                  }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 10,
+                      background: tx.status === "paid" ? "#dcfce7" : tx.status === "pending" ? "#fef3c7" : "#fee2e2",
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem",
+                    }}>
+                      {tx.status === "paid" ? "✅" : tx.status === "pending" ? "⏳" : "❌"}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: "0.85rem", color: "#0d1526" }}>
+                        Rp {Number(tx.amount).toLocaleString("id-ID")}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+                        {tx.payer_name || "Anonim"} · {new Date(tx.created_at).toLocaleString("id-ID")}
+                      </div>
+                    </div>
+                    {tx.status === "pending" && (
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button onClick={() => confirmTransaction(tx.id)} style={{
+                          padding: "6px 14px", borderRadius: 99, border: "none",
+                          background: "#16a34a", color: "#fff", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer",
+                        }}>Konfirmasi ✅</button>
+                        <button onClick={() => rejectTransaction(tx.id)} style={{
+                          padding: "6px 14px", borderRadius: 99, border: "1px solid #e2e8f0",
+                          background: "#fff", color: "#dc2626", fontSize: "0.75rem", fontWeight: 600, cursor: "pointer",
+                        }}>Tolak ❌</button>
+                      </div>
+                    )}
+                    {tx.status === "paid" && (
+                      <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#16a34a" }}>LUNAS</span>
+                    )}
+                    {tx.status === "failed" && (
+                      <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#dc2626" }}>DITOLAK</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
