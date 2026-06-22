@@ -19,7 +19,6 @@ export default function DashboardPage() {
     amount: "",
     merchant_name: "",
     merchant_qris_url: "",
-    merchant_qr_data: "",
   });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -109,7 +108,6 @@ export default function DashboardPage() {
         account_name: modalData.merchant_name,
         provider: "other",
         qr_image_url: modalData.merchant_qris_url || null,
-        qr_data: modalData.merchant_qr_data || null,
       });
 
       if (error) {
@@ -121,7 +119,7 @@ export default function DashboardPage() {
 
     setSaving(false);
     setModalMode(null);
-    setModalData({ name: "", description: "", amount: "", merchant_name: "", merchant_qris_url: "", merchant_qr_data: "" });
+    setModalData({ name: "", description: "", amount: "", merchant_name: "", merchant_qris_url: "" });
     fetchMerchants();
     fetchPaymentLinks();
     fetchTransactions();
@@ -686,21 +684,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>
-                      Kode QRIS / NMID <span style={{ color: "#3b7ddd", fontWeight: 400 }}>(prioritas)</span>
-                    </label>
-                    <input
-                      value={modalData.merchant_qr_data}
-                      onChange={(e) => setModalData({ ...modalData, merchant_qr_data: e.target.value })}
-                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
-                      placeholder="00020101021226630012ID... atau NMID/MPAN"
-                    />
-                    <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "4px 0 0" }}>
-                      Paste kode QRIS biar sistem bisa generate QR dinamis otomatis
-                    </p>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>
-                      Gambar QRIS <span style={{ color: "#94a3b8", fontWeight: 400 }}>(alternatif)</span>
+                      Gambar QRIS
                     </label>
                     <input
                       value={modalData.merchant_qris_url}
@@ -708,6 +692,9 @@ export default function DashboardPage() {
                       style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
                       placeholder="https://example.com/qris.jpg"
                     />
+                    <p style={{ fontSize: "0.75rem", color: "#94a3b8", margin: "4px 0 0" }}>
+                      Upload QRIS ke imgur/image host, paste link-nya di sini
+                    </p>
                   </div>
                   <div>
                     <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Deskripsi (opsional)</label>
