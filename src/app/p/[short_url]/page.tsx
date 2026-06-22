@@ -1,10 +1,128 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { createSupabaseClientClient } from "@/lib/supabase/client";
+import QRCode from "qrcode";
 
 export default function PaymentPage() {
   const params = useParams();
   const shortUrl = params?.short_url as string;
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [paymentLink, setPaymentLink] = useState<any>(null);
+  const [merchant, setMerchant] = useState<any>(null);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+
+  useEffect(() => {
+    if (!shortUrl) return;
+
+    const fetchData = async () => {
+      const supabase = createSupabaseClientClient();
+
+      // 1. Get payment link by short_url
+      const { data: pl, error: plErr } = await supabase
+        .from("payment_links")
+        .select("*")
+        .eq("short_url", shortUrl)
+        .single();
+
+      if (plErr || !pl) {
+        setError("Link pembayaran tidak ditemukan.");
+        setLoading(false);
+        return;
+      }
+
+      setPaymentLink(pl);
+
+      // 2. Get merchant
+      const { data: m } = await supabase
+        .from("merchants")
+        .select("*")
+        .eq("id", pl.merchant_id)
+        .single();
+
+      if (m) setMerchant(m);
+
+      // 3. Generate QR code
+      const qrSource = m?.qr_data || m?.qr_image_url || "";
+      if (qrSource) {
+        try {
+          // If it's a URL pointing to an image, use it directly
+          if (qrSource.startsWith("http")) {
+            setQrDataUrl(qrSource);
+          } else {
+            // It's a QRIS code string — generate QR code image
+            const dataUrl = await QRCode.toDataURL(qrSource, {
+              width: 400,
+              margin: 2,
+              color: { dark: "#0d1526", light: "#ffffff" },
+            });
+            setQrDataUrl(dataUrl);
+          }
+        } catch {
+          setQrDataUrl("");
+        }
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [shortUrl]);
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+        fontSize: "1rem",
+        color: "#64748b"
+      }}>
+        ⏳ Memuat halaman pembayaran...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
+        padding: 20,
+      }}>
+        <div style={{
+          width: "100%",
+          maxWidth: 400,
+          background: "#fff",
+          borderRadius: 20,
+          padding: 40,
+          border: "1px solid #e2e8f0",
+          textAlign: "center"
+        }}>
+          <div style={{ fontSize: "3rem", marginBottom: 16 }}>❌</div>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>
+            Link Tidak Valid
+          </h2>
+          <p style={{ fontSize: "0.88rem", color: "#64748b" }}>
+            {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const amount = paymentLink?.amount;
+  const amountDisplay = amount
+    ? `Rp${Number(amount).toLocaleString("id-ID")}`
+    : "Bebas";
 
   return (
     <div style={{
@@ -48,26 +166,45 @@ export default function PaymentPage() {
           fontSize: "1.4rem",
           fontWeight: 700,
           color: "#0d1526",
-          marginBottom: 8
+          marginBottom: 4
         }}>
-          Pembayaran #{shortUrl || "—"}
+          {paymentLink?.title || `Pembayaran #${shortUrl}`}
         </h1>
 
+        {paymentLink?.description && (
+          <p style={{ fontSize: "0.82rem", color: "#64748b", marginBottom: 8 }}>
+            {paymentLink.description}
+          </p>
+        )}
+
+        {/* QR Code */}
         <div style={{
-          width: 200,
-          height: 200,
-          margin: "24px auto",
-          background: "#f8fafc",
+          width: 220,
+          height: 220,
+          margin: "20px auto",
           borderRadius: 16,
-          border: "2px dashed #e2e8f0",
+          border: qrDataUrl ? "none" : "2px dashed #e2e8f0",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: "3rem",
-          color: "#94a3b8"
+          overflow: "hidden",
         }}>
-          📱
+          {qrDataUrl ? (
+            qrDataUrl.startsWith("data:image") ? (
+              <img src={qrDataUrl} alt="QRIS" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            ) : (
+              <img src={qrDataUrl} alt="QRIS" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
+            )
+          ) : (
+            <span style={{ fontSize: "3rem", color: "#94a3b8" }}>📱</span>
+          )}
         </div>
+
+        {!qrDataUrl && (
+          <p style={{ fontSize: "0.78rem", color: "#94a3b8", marginBottom: 16 }}>
+            Belum ada QRIS — hubungi penjual
+          </p>
+        )}
 
         <div style={{ fontSize: "0.82rem", color: "#64748b", marginBottom: 4 }}>
           Total Pembayaran
@@ -78,8 +215,18 @@ export default function PaymentPage() {
           color: "#0d1526",
           letterSpacing: "-0.02em"
         }}>
-          Rp50.000
+          {amountDisplay}
         </div>
+
+        {merchant && (
+          <div style={{
+            marginTop: 16,
+            fontSize: "0.82rem",
+            color: "#64748b"
+          }}>
+            Kepada: <strong>{merchant.name}</strong>
+          </div>
+        )}
 
         <div style={{
           marginTop: 24,
@@ -96,27 +243,6 @@ export default function PaymentPage() {
           2. Pilih Scan QR / Bayar QRIS<br />
           3. Scan kode QR di atas<br />
           4. Konfirmasi pembayaran
-        </div>
-
-        <button
-          style={{
-            marginTop: 20,
-            padding: "12px 28px",
-            borderRadius: 99,
-            border: "1px solid #e2e8f0",
-            background: "#fff",
-            fontSize: "0.85rem",
-            fontWeight: 600,
-            color: "#475569",
-            cursor: "pointer",
-            width: "100%"
-          }}
-        >
-          🔄 Cek Status Pembayaran
-        </button>
-
-        <div style={{ marginTop: 24, fontSize: "0.72rem", color: "#94a3b8" }}>
-          Powered by <strong>Bayar.click</strong>
         </div>
       </div>
     </div>
