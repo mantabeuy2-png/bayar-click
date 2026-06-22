@@ -62,9 +62,11 @@ export default function DashboardPage() {
     if (modalMode === "merchant") {
       const { error } = await supabase.from("merchants").insert({
         name: modalData.merchant_name,
-        qris_image_url: modalData.merchant_qris_url,
+        user_id: user?.id,
+        account_name: modalData.merchant_name,
+        provider: "other",
+        qris_image_url: modalData.merchant_qris_url || null,
         qr_data: modalData.merchant_qr_data || null,
-        description: modalData.description,
       });
 
       if (error) {
