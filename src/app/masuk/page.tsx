@@ -2,11 +2,13 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { createSupabaseClientClient } from "@/lib/supabase/client";
 
 function MasukForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -98,21 +100,44 @@ function MasukForm() {
           <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
             Password
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: 10,
-              border: "1px solid #e2e8f0",
-              fontSize: "0.9rem",
-              outline: "none",
-            }}
-            placeholder="••••••••"
-          />
+          <div style={{ position: "relative" }}>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{
+                width: "100%",
+                padding: "12px 40px 12px 14px",
+                borderRadius: 10,
+                border: "1px solid #e2e8f0",
+                fontSize: "0.9rem",
+                outline: "none",
+              }}
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#94a3b8",
+                padding: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
         <button
           type="submit"
