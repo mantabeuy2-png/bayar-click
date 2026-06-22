@@ -389,16 +389,63 @@ export default function DashboardPage() {
             border: "1px solid #e2e8f0",
             padding: 24,
           }}>
-            <div style={{
-              padding: 60,
-              textAlign: "center",
-              color: "#94a3b8",
-              fontSize: "0.88rem",
-              border: "2px dashed #e2e8f0",
-              borderRadius: 12,
-            }}>
-              🔗 Belum ada payment link. Klik "Tambah Baru" untuk membuat!
-            </div>
+            {paymentLinks.length === 0 ? (
+              <div style={{
+                padding: 60,
+                textAlign: "center",
+                color: "#94a3b8",
+                fontSize: "0.88rem",
+                border: "2px dashed #e2e8f0",
+                borderRadius: 12,
+              }}>
+                🔗 Belum ada payment link. Klik "Tambah Baru" untuk membuat!
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {paymentLinks.map((pl) => (
+                  <div key={pl.id} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    padding: "14px 16px",
+                    borderRadius: 12,
+                    border: "1px solid #e2e8f0",
+                  }}>
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      background: "#eff6ff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.2rem",
+                    }}>🔗</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, color: "#0d1526", fontSize: "0.9rem" }}>{pl.title}</div>
+                      <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 2 }}>
+                        {pl.amount ? `Rp ${Number(pl.amount).toLocaleString()}` : "Bebas"} · /p/{pl.short_url}
+                      </div>
+                    </div>
+                    <a
+                      href={`/p/${pl.short_url}`}
+                      target="_blank"
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 99,
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        background: "#3b7ddd",
+                        color: "#fff",
+                        textDecoration: "none",
+                      }}
+                    >
+                      Buka
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
