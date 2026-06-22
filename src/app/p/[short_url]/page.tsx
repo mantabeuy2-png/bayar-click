@@ -50,22 +50,18 @@ export default function PaymentPage() {
 
       if (m) setMerchant(m);
 
-      // 3. Generate QR code
-      const qrSource = m?.qr_data || m?.qr_image_url || "";
-      if (qrSource) {
+      // 3. Tampilkan QR asli merchant (prioritas gambar)
+      if (m?.qr_image_url) {
+        setQrDataUrl(m.qr_image_url);
+      } else if (m?.qr_data) {
+        // Fallback: generate QR dari kode QRIS
         try {
-          // If it's a URL pointing to an image, use it directly
-          if (qrSource.startsWith("http")) {
-            setQrDataUrl(qrSource);
-          } else {
-            // It's a QRIS code string — generate QR code image
-            const dataUrl = await QRCode.toDataURL(qrSource, {
-              width: 400,
-              margin: 2,
-              color: { dark: "#0d1526", light: "#ffffff" },
-            });
-            setQrDataUrl(dataUrl);
-          }
+          const dataUrl = await QRCode.toDataURL(m.qr_data, {
+            width: 400,
+            margin: 2,
+            color: { dark: "#0d1526", light: "#ffffff" },
+          });
+          setQrDataUrl(dataUrl);
         } catch {
           setQrDataUrl("");
         }
@@ -247,7 +243,7 @@ export default function PaymentPage() {
         <div style={{
           width: 220,
           height: 220,
-          margin: "20px auto",
+          margin: "16px auto 8px",
           borderRadius: 16,
           border: qrDataUrl ? "none" : "2px dashed #e2e8f0",
           display: "flex",
@@ -256,15 +252,17 @@ export default function PaymentPage() {
           overflow: "hidden",
         }}>
           {qrDataUrl ? (
-            qrDataUrl.startsWith("data:image") ? (
-              <img src={qrDataUrl} alt="QRIS" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-            ) : (
-              <img src={qrDataUrl} alt="QRIS" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
-            )
+            <img src={qrDataUrl} alt="QRIS" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <span style={{ fontSize: "3rem", color: "#94a3b8" }}>📱</span>
           )}
         </div>
+
+        {merchant?.qr_image_url && (
+          <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginBottom: 12 }}>
+            QRIS Merchant Asli — scan seperti biasa
+          </div>
+        )}
 
         {!qrDataUrl && (
           <p style={{ fontSize: "0.78rem", color: "#94a3b8", marginBottom: 16 }}>
