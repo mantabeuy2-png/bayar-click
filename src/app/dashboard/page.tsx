@@ -23,6 +23,9 @@ export default function DashboardPage() {
   });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [merchants, setMerchants] = useState<any[]>([]);
+  const [paymentLinks, setPaymentLinks] = useState<any[]>([]);
+  const [fetching, setFetching] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +39,25 @@ export default function DashboardPage() {
       setLoading(false);
     });
   }, [router]);
+
+  const fetchMerchants = async () => {
+    setFetching(true);
+    const supabase = createSupabaseClientClient();
+    const { data } = await supabase.from("merchants").select("*").order("created_at", { ascending: false });
+    if (data) setMerchants(data);
+    setFetching(false);
+  };
+
+  const fetchPaymentLinks = async () => {
+    const supabase = createSupabaseClientClient();
+    const { data } = await supabase.from("payment_links").select("*").order("created_at", { ascending: false });
+    if (data) setPaymentLinks(data);
+  };
+
+  useEffect(() => {
+    fetchMerchants();
+    fetchPaymentLinks();
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -79,6 +101,8 @@ export default function DashboardPage() {
     setSaving(false);
     setModalMode(null);
     setModalData({ name: "", description: "", amount: "", merchant_name: "", merchant_qris_url: "", merchant_qr_data: "" });
+    fetchMerchants();
+    fetchPaymentLinks();
   };
 
   const handleLogout = async () => {
@@ -301,16 +325,60 @@ export default function DashboardPage() {
             border: "1px solid #e2e8f0",
             padding: 24,
           }}>
-            <div style={{
-              padding: 60,
-              textAlign: "center",
-              color: "#94a3b8",
-              fontSize: "0.88rem",
-              border: "2px dashed #e2e8f0",
-              borderRadius: 12,
-            }}>
-              🏪 Belum ada merchant QRIS. Upload QRIS merchant kamu untuk mulai!
-            </div>
+            {fetching ? (
+              <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>⏳ Memuat...</div>
+            ) : merchants.length === 0 ? (
+              <div style={{
+                padding: 60,
+                textAlign: "center",
+                color: "#94a3b8",
+                fontSize: "0.88rem",
+                border: "2px dashed #e2e8f0",
+                borderRadius: 12,
+              }}>
+                🏪 Belum ada merchant QRIS. Upload QRIS merchant kamu untuk mulai!
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {merchants.map((m) => (
+                  <div key={m.id} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    padding: "14px 16px",
+                    borderRadius: 12,
+                    border: "1px solid #e2e8f0",
+                  }}>
+                    <div style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 10,
+                      background: "#f1f5f9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "1.2rem",
+                    }}>🏪</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, color: "#0d1526", fontSize: "0.9rem" }}>{m.name}</div>
+                      <div style={{ fontSize: "0.78rem", color: "#94a3b8", marginTop: 2 }}>
+                        {m.qr_data ? "✅ QRIS code" : m.qr_image_url ? "🖼️ QR image" : "❌ No QR"} · {m.status}
+                      </div>
+                    </div>
+                    <div style={{
+                      padding: "4px 12px",
+                      borderRadius: 99,
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      background: m.status === "active" ? "#dcfce7" : "#fef3c7",
+                      color: m.status === "active" ? "#16a34a" : "#d97706",
+                    }}>
+                      {m.status}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
