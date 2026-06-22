@@ -6,11 +6,22 @@ import { createSupabaseClientClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "webhooks" | "api-keys" | "settings";
+type ModalMode = "payment-link" | "merchant" | null;
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [modalMode, setModalMode] = useState<ModalMode>(null);
+  const [modalData, setModalData] = useState({
+    name: "",
+    description: "",
+    amount: "",
+    merchant_name: "",
+    merchant_qris_url: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +35,47 @@ export default function DashboardPage() {
       setLoading(false);
     });
   }, [router]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError("");
+
+    const supabase = createSupabaseClientClient();
+
+    if (modalMode === "payment-link") {
+      const { error } = await supabase.from("payment_links").insert({
+        merchant_id: null,
+        name: modalData.name,
+        description: modalData.description,
+        amount: modalData.amount ? parseFloat(modalData.amount) : null,
+        short_url: Math.random().toString(36).substring(2, 8),
+      });
+
+      if (error) {
+        setSaveError(error.message);
+        setSaving(false);
+        return;
+      }
+    }
+
+    if (modalMode === "merchant") {
+      const { error } = await supabase.from("merchants").insert({
+        name: modalData.merchant_name,
+        qris_image_url: modalData.merchant_qris_url,
+        description: modalData.description,
+      });
+
+      if (error) {
+        setSaveError(error.message);
+        setSaving(false);
+        return;
+      }
+    }
+
+    setSaving(false);
+    setModalMode(null);
+    setModalData({ name: "", description: "", amount: "", merchant_name: "", merchant_qris_url: "" });
+  };
 
   const handleLogout = async () => {
     const supabase = createSupabaseClientClient();
@@ -165,7 +217,11 @@ export default function DashboardPage() {
             </p>
           </div>
           {(activeTab === "payment-links" || activeTab === "merchants") && (
-            <button className="btn btn-primary" style={{ padding: "10px 22px", fontSize: "0.85rem" }}>
+            <button
+              className="btn btn-primary"
+              style={{ padding: "10px 22px", fontSize: "0.85rem" }}
+              onClick={() => setModalMode(activeTab === "payment-links" ? "payment-link" : "merchant")}
+            >
               + Tambah Baru
             </button>
           )}
@@ -355,6 +411,128 @@ export default function DashboardPage() {
               </div>
               <button className="btn btn-primary" style={{ width: "fit-content", marginTop: 8 }}>
                 Simpan
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL */}
+        {modalMode && (
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
+          }}
+            onClick={() => setModalMode(null)}
+          >
+            <div style={{
+              background: "#fff",
+              borderRadius: 16,
+              padding: 32,
+              width: "100%",
+              maxWidth: 480,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+            }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0d1526", margin: 0 }}>
+                  {modalMode === "payment-link" ? "Buat Payment Link" : "Tambah Merchant QRIS"}
+                </h3>
+                <button onClick={() => setModalMode(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.2rem", color: "#94a3b8", padding: 4 }}>✕</button>
+              </div>
+
+              {saveError && (
+                <div style={{ padding: "10px 14px", background: "#fef2f2", borderRadius: 10, color: "#dc2626", fontSize: "0.82rem", marginBottom: 16 }}>
+                  {saveError}
+                </div>
+              )}
+
+              {modalMode === "payment-link" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Nama Produk / Tagihan</label>
+                    <input
+                      value={modalData.name}
+                      onChange={(e) => setModalData({ ...modalData, name: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
+                      placeholder="Contoh: Donasi Website"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Deskripsi (opsional)</label>
+                    <textarea
+                      value={modalData.description}
+                      onChange={(e) => setModalData({ ...modalData, description: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none", minHeight: 80, resize: "vertical" }}
+                      placeholder="Deskripsi singkat"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Jumlah (opsional, kosongkan jika bebas)</label>
+                    <input
+                      type="number"
+                      value={modalData.amount}
+                      onChange={(e) => setModalData({ ...modalData, amount: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
+                      placeholder="Rp 50.000"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Nama Merchant</label>
+                    <input
+                      value={modalData.merchant_name}
+                      onChange={(e) => setModalData({ ...modalData, merchant_name: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
+                      placeholder="Nama toko / usaha"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>QRIS Image URL</label>
+                    <input
+                      value={modalData.merchant_qris_url}
+                      onChange={(e) => setModalData({ ...modalData, merchant_qris_url: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none" }}
+                      placeholder="https://example.com/qris.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Deskripsi (opsional)</label>
+                    <textarea
+                      value={modalData.description}
+                      onChange={(e) => setModalData({ ...modalData, description: e.target.value })}
+                      style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem", outline: "none", minHeight: 80, resize: "vertical" }}
+                      placeholder="Catatan merchant"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                style={{
+                  padding: "12px 28px",
+                  borderRadius: 99,
+                  border: "none",
+                  background: "linear-gradient(135deg, #3b7ddd, #4facfe)",
+                  color: "#fff",
+                  fontSize: "0.88rem",
+                  fontWeight: 600,
+                  cursor: saving ? "not-allowed" : "pointer",
+                  opacity: saving ? 0.7 : 1,
+                  width: "100%",
+                  marginTop: 20,
+                }}
+              >
+                {saving ? "Menyimpan..." : "Simpan"}
               </button>
             </div>
           </div>
