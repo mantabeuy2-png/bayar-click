@@ -1,0 +1,4 @@
+/* COMING SOON - landing page will be imported here in Phase 2 */
+export default function HomePage() {
+  return null;
+}
