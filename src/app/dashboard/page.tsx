@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseClientClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
-type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "webhooks" | "api-keys" | "settings";
+type Tab = "overview" | "merchants" | "payment-links" | "transactions";
 type ModalMode = "payment-link" | "merchant" | null;
 
 export default function DashboardPage() {
@@ -137,9 +137,6 @@ export default function DashboardPage() {
     { id: "merchants", label: "Merchant QRIS", icon: "🏪" },
     { id: "payment-links", label: "Payment Links", icon: "🔗" },
     { id: "transactions", label: "Transaksi", icon: "💳" },
-    { id: "webhooks", label: "Webhooks", icon: "🔔" },
-    { id: "api-keys", label: "API Keys", icon: "🔑" },
-    { id: "settings", label: "Settings", icon: "⚙️" },
   ];
 
   if (loading) {
@@ -259,9 +256,6 @@ export default function DashboardPage() {
               {activeTab === "merchants" && "Kelola merchant QRIS kamu"}
               {activeTab === "payment-links" && "Buat dan kelola link pembayaran"}
               {activeTab === "transactions" && "Semua transaksi pembayaran"}
-              {activeTab === "webhooks" && "Webhook integration"}
-              {activeTab === "api-keys" && "API key management"}
-              {activeTab === "settings" && "Pengaturan akun"}
             </p>
           </div>
           {(activeTab === "payment-links" || activeTab === "merchants") && (
@@ -535,72 +529,6 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {activeTab === "webhooks" && (
-          <div style={{
-            background: "#fff",
-            borderRadius: 14,
-            border: "1px solid #e2e8f0",
-            padding: 24,
-          }}>
-            <div style={{
-              padding: 60,
-              textAlign: "center",
-              color: "#94a3b8",
-              fontSize: "0.88rem",
-              border: "2px dashed #e2e8f0",
-              borderRadius: 12,
-            }}>
-              🔔 Belum ada webhook. Integrasikan Bayar dengan tools kamu!
-            </div>
-          </div>
-        )}
-
-        {activeTab === "api-keys" && (
-          <div style={{
-            background: "#fff",
-            borderRadius: 14,
-            border: "1px solid #e2e8f0",
-            padding: 24,
-          }}>
-            <div style={{
-              padding: 60,
-              textAlign: "center",
-              color: "#94a3b8",
-              fontSize: "0.88rem",
-              border: "2px dashed #e2e8f0",
-              borderRadius: 12,
-            }}>
-              🔑 Belum ada API key. Buat API key untuk integrasi!
-            </div>
-          </div>
-        )}
-
-        {activeTab === "settings" && (
-          <div style={{
-            background: "#fff",
-            borderRadius: 14,
-            border: "1px solid #e2e8f0",
-            padding: 24,
-          }}>
-            <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "#0d1526", marginBottom: 16 }}>
-              Pengaturan Akun
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 400 }}>
-              <div>
-                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Nama</label>
-                <input type="text" defaultValue={userName} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem" }} />
-              </div>
-              <div>
-                <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#334155", display: "block", marginBottom: 4 }}>Email</label>
-                <input type="email" defaultValue={userEmail} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: "0.88rem" }} />
-              </div>
-              <button className="btn btn-primary" style={{ width: "fit-content", marginTop: 8 }}>
-                Simpan
-              </button>
-            </div>
           </div>
         )}
 

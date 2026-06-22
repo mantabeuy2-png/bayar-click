@@ -33,8 +33,8 @@ export default function HomePage() {
             <span className="hl">Jadi Alat Jualan Online.</span>
           </h1>
           <p className="subtitle">
-            Upload QRIS merchantmu, dapatkan QR dinamis, payment link, dashboard real-time, 
-            dan integasi API — tanpa ngurus payment gateway yang ribet.
+            Upload QRIS merchantmu, dapatkan payment link profesional, dashboard transaksi,
+            dan konfirmasi manual — tanpa potongan, tanpa ribet.
           </p>
           <div className="hero-actions">
             <a href="/daftar" className="btn btn-primary">🚀 Mulai Gratis</a>
@@ -42,8 +42,8 @@ export default function HomePage() {
           </div>
           <div className="trust-strip">
             <div>
-              <div className="trust-number">10+</div>
-              <div className="trust-label">Payment Provider</div>
+              <div className="trust-number">3</div>
+              <div className="trust-label">Langkah Simpel</div>
             </div>
             <div>
               <div className="trust-number">0%</div>
@@ -54,8 +54,8 @@ export default function HomePage() {
               <div className="trust-label">Link Jadi</div>
             </div>
             <div>
-              <div className="trust-number">🔌</div>
-              <div className="trust-label">n8n Integrated</div>
+              <div className="trust-number">👆</div>
+              <div className="trust-label">1-Klik Konfirmasi</div>
             </div>
           </div>
         </div>
@@ -68,9 +68,9 @@ export default function HomePage() {
           <p className="subtitle subtitle-center">3 langkah aja — nggak perlu coding, nggak perlu daftar payment gateway.</p>
           <div className="feature-grid" style={{ marginTop: 32 }}>
             {[
-              { icon: "📤", title: "Upload QRIS", desc: "Upload foto/promo QRIS merchant yang kamu punya. Bayar otomatis baca datanya." },
-              { icon: "🔗", title: "Buat Link Bayar", desc: "Buat link pembayaran profesional. Atur nominal, masa berlaku, dan halaman sukses." },
-              { icon: "📥", title: "Terima Pembayaran", desc: "Share link ke pelanggan. Saat bayar masuk, kamu dapat notif real-time + dashboard." },
+              { icon: "📤", title: "Upload QRIS", desc: "Upload gambar QRIS merchant yang kamu punya." },
+              { icon: "🔗", title: "Buat Link Bayar", desc: "Buat link pembayaran profesional. Atur nominal atau bebas." },
+              { icon: "👆", title: "Konfirmasi Manual", desc: "Cek saldo masuk, klik konfirmasi — selesai." },
             ].map((item, i) => (
               <div key={i} className="feature-card" style={{ textAlign: "center" }}>
                 <div className="feature-icon" style={{ margin: "0 auto 16px", background: "var(--color-brand-light)" }}>
@@ -91,18 +91,12 @@ export default function HomePage() {
           <p className="subtitle subtitle-center">Nggak perlu 5 aplikasi berbeda. Cukup QR merchantmu + Bayar.</p>
           <div className="feature-grid">
             {[
-              { icon: "🔄", title: "QR Dinamis", desc: "QR code dengan nominal fix & expiry time. Bisa didownload PNG/PDF." },
-              { icon: "🎨", title: "QR Branded", desc: "Tambahkan logo & pilih frame biar QR-mu keliatan profesional." },
               { icon: "🔗", title: "Payment Link", desc: "Link bayar yang bisa di-share lewat WA, email, atau medsos." },
-              { icon: "📊", title: "Dashboard", desc: "Pantau semua transaksi real-time. Filter, export, analisa." },
-              { icon: "🤖", title: "n8n Integration", desc: "Automate workflow pas ada pembayaran masuk. Update Sheets, kirim WA, dll." },
-              { icon: "⚡", title: "Auto-Validation", desc: "Deteksi pembayaran otomatis untuk GoPay & BCA. Manual confirm gratis." },
-              { icon: "🔌", title: "REST API", desc: "Integrasikan dengan website, bot, atau aplikasi kamu." },
-              { icon: "📦", title: "Bot Commerce", desc: "Terima pembayaran via Telegram / Discord / WhatsApp." },
-              { icon: "🎯", title: "Donasi & Iuran", desc: "Link donasi dengan progress bar + leaderboard untuk organisasi." },
-              { icon: "💵", title: "Tip Jar", desc: "Untuk kreator, YouTuber, streamer — biarkan fans support kamu." },
-              { icon: "🛒", title: "WooCommerce", desc: "Plugin WordPress untuk toko online kamu." },
-              { icon: "🔔", title: "Notifikasi", desc: "Push notifikasi pas pembayaran masuk. No need refresh." },
+              { icon: "📊", title: "Dashboard", desc: "Pantau transaksi masuk. Konfirmasi manual dalam 1 klik." },
+              { icon: "📤", title: "Upload QRIS", desc: "Upload QRIS merchantmu — tampil persis seperti aslinya." },
+              { icon: "💬", title: "Lapor Bayar", desc: "Customer bisa lapor setelah bayar, dengan nama & catatan." },
+              { icon: "📱", title: "Mobile Friendly", desc: "Halaman bayar ringan, cocok dibuka dari HP." },
+              { icon: "🔒", title: "Aman", desc: "Login dengan email/password atau Google OAuth." },
             ].map((item, i) => (
               <div key={i} className="feature-card">
                 <div className="feature-icon" style={{ background: i % 2 === 0 ? "var(--color-brand-light)" : "var(--color-accent-light)" }}>
@@ -123,12 +117,12 @@ export default function HomePage() {
           <p className="subtitle subtitle-center">Bayar cocok buat berbagai kebutuhan.</p>
           <div className="feature-grid" style={{ marginTop: 32 }}>
             {[
-              { icon: "🏪", title: "UMKM & Toko", desc: "Ganti buku catatan penjualan dengan dashboard otomatis." },
-              { icon: "🎨", title: "Kreator & Streamer", desc: "Tip jar & donasi untuk konten yang kamu buat." },
-              { icon: "🏛️", title: "Organisasi", desc: "Iuran RT, karang taruna, komunitas — tahu siapa yang udah bayar." },
-              { icon: "💒", title: "Masjid & Gereja", desc: "Donasi kotak amal digital dengan progress bar." },
-              { icon: "👰", title: "Pernikahan", desc: "Angpau digital untuk tamu undangan." },
-              { icon: "👨‍💻", title: "Developer", desc: "API & webhook untuk integrasi project kamu." },
+              { icon: "🏪", title: "UMKM & Toko", desc: "Terima pembayaran online pake QRIS yang udah ada." },
+              { icon: "🎨", title: "Kreator", desc: "Tip jar & donasi untuk fans yang mau support." },
+              { icon: "🏛️", title: "Organisasi", desc: "Iuran komunitas, tahu siapa yang udah bayar." },
+              { icon: "📲", title: "Jualan Online", desc: "Share link bayar di WA, Instagram, TikTok." },
+              { icon: "💒", title: "Masjid & Gereja", desc: "Donasi digital tanpa ribet daftar payment gateway." },
+              { icon: "👰", title: "Event", desc: "Angpau digital untuk tamu undangan." },
             ].map((item, i) => (
               <div key={i} className="feature-card" style={{ textAlign: "center" }}>
                 <div className="feature-icon" style={{ margin: "0 auto 16px" }}>
@@ -161,21 +155,21 @@ export default function HomePage() {
                 amount: "29rb",
                 desc: "Buat jualan serius",
                 popular: true,
-                features: ["3 merchant QRIS", "500 transaksi/bulan", "QR branded", "Export CSV", "Webhook integration", "Manual confirm gratis"]
+                features: ["3 merchant QRIS", "500 transaksi/bulan", "Payment link unlimited", "Dashboard lengkap", "Manual confirm gratis"]
               },
               {
                 name: "Pro",
                 amount: "79rb",
                 desc: "Buat bisnis berkembang",
                 popular: false,
-                features: ["10 merchant QRIS", "5.000 transaksi/bulan", "Auto-validate (GoPay/BCA)", "REST API", "n8n templates", "Prioritas support"]
+                features: ["10 merchant QRIS", "5.000 transaksi/bulan", "Custom domain", "Export CSV", "Prioritas support"]
               },
               {
                 name: "Business",
                 amount: "199rb",
                 desc: "Scale up unlimited",
                 popular: false,
-                features: ["Unlimited merchant", "Unlimited transaksi", "White-label custom domain", "API custom rate", "Dedicated support", "SLA 99.9%"]
+                features: ["Unlimited merchant", "Unlimited transaksi", "White-label domain", "Dedicated support", "SLA 99.9%"]
               },
             ].map((plan, i) => (
               <div key={i} className={`price-card ${plan.popular ? "featured" : ""}`}>
@@ -201,11 +195,11 @@ export default function HomePage() {
               <h2>Donasi, iuran, patungan — 1 menit jadi.</h2>
               <p>Punya QR merchant? Buat link pembayaran profesional dalam 1 menit. Share ke WhatsApp — selesai. Tidak perlu website, tidak perlu daftar payment gateway.</p>
               <ul className="detail-list">
-                <li>Donasi dengan progress bar + leaderboard pendukung</li>
-                <li>Iuran RT/organisasi — tahu siapa yang sudah bayar</li>
+                <li>Link donasi & patungan</li>
+                <li>Iuran organisasi — tahu siapa yang sudah bayar</li>
                 <li>Angpau digital untuk pernikahan & acara</li>
-                <li>Support kreator — tip jar untuk YouTuber, streamer</li>
-                <li>Push notification saat pembayaran masuk</li>
+                <li>Tip jar untuk kreator</li>
+                <li>Halaman bayar mobile-friendly</li>
               </ul>
               <a href="/daftar" className="btn btn-primary" style={{ marginTop: 20 }}>Buat Link Pembayaran</a>
             </div>
