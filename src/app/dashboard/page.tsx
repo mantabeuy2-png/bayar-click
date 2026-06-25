@@ -537,7 +537,10 @@ export default function DashboardPage() {
 
         {/* AI AGENT TAB */}
         {activeTab === "ai-agent" && (
-          <AIAgentTab />
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 24 }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>🤖 AI Agent Active</h3>
+            <AIAgentTab />
+          </div>
         )}
 
         {/* MODAL */}
