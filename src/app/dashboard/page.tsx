@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseClientClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import AIAgentTab from "@/components/AIAgentTab";
 
-type Tab = "overview" | "merchants" | "payment-links" | "transactions";
+type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "ai-agent";
 type ModalMode = "payment-link" | "merchant" | null;
 
 export default function DashboardPage() {
@@ -137,6 +138,7 @@ export default function DashboardPage() {
     { id: "merchants", label: "Merchant QRIS", icon: "🏪" },
     { id: "payment-links", label: "Payment Links", icon: "🔗" },
     { id: "transactions", label: "Transaksi", icon: "💳" },
+    { id: "ai-agent", label: "AI Agent", icon: "🤖" },
   ];
 
   if (loading) {
@@ -256,6 +258,7 @@ export default function DashboardPage() {
               {activeTab === "merchants" && "Kelola merchant QRIS kamu"}
               {activeTab === "payment-links" && "Buat dan kelola link pembayaran"}
               {activeTab === "transactions" && "Semua transaksi pembayaran"}
+              {activeTab === "ai-agent" && "Konfigurasi AI Agent WhatsApp — SOUL.md & PROFILE.md"}
             </p>
           </div>
           {(activeTab === "payment-links" || activeTab === "merchants") && (
@@ -530,6 +533,11 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* AI AGENT TAB */}
+        {activeTab === "ai-agent" && (
+          <AIAgentTab />
         )}
 
         {/* MODAL */}
