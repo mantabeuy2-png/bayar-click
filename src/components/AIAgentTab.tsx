@@ -20,6 +20,194 @@ const HARI_LABEL: Record<string, string> = {
   jum: "Jum", sab: "Sab", min: "Min",
 };
 
+// ===== STYLES =====
+const S = {
+  card: {
+    background: "#fff",
+    borderRadius: 16,
+    border: "1px solid #e2e8f0",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+    overflow: "hidden",
+  } as React.CSSProperties,
+  cardBody: {
+    padding: 28,
+  } as React.CSSProperties,
+  title: {
+    fontSize: "1.05rem",
+    fontWeight: 700,
+    color: "#0d1526",
+    marginBottom: 2,
+  } as React.CSSProperties,
+  subtitle: {
+    fontSize: "0.82rem",
+    color: "#94a3b8",
+    marginBottom: 24,
+    marginTop: 0,
+  } as React.CSSProperties,
+  formGroup: {
+    marginBottom: 16,
+  } as React.CSSProperties,
+  label: {
+    fontSize: "0.82rem",
+    fontWeight: 600,
+    color: "#334155",
+    display: "block",
+    marginBottom: 6,
+  } as React.CSSProperties,
+  input: {
+    width: "100%",
+    padding: "10px 14px",
+    borderRadius: 10,
+    border: "1px solid #e2e8f0",
+    fontSize: "0.88rem",
+    outline: "none",
+    background: "#fff",
+    color: "#0d1526",
+    boxSizing: "border-box" as const,
+  } as React.CSSProperties,
+  select: {
+    width: "100%",
+    padding: "10px 14px",
+    borderRadius: 10,
+    border: "1px solid #e2e8f0",
+    fontSize: "0.88rem",
+    outline: "none",
+    background: "#fff",
+    color: "#0d1526",
+    boxSizing: "border-box" as const,
+    cursor: "pointer",
+  } as React.CSSProperties,
+  textarea: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 10,
+    border: "1px solid #e2e8f0",
+    fontSize: "0.82rem",
+    outline: "none",
+    background: "#fff",
+    color: "#0d1526",
+    resize: "vertical" as const,
+    fontFamily: "'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace",
+    lineHeight: 1.6,
+    boxSizing: "border-box" as const,
+  } as React.CSSProperties,
+  labelHint: {
+    fontSize: "0.72rem",
+    color: "#94a3b8",
+    marginTop: 4,
+  } as React.CSSProperties,
+  infoBox: {
+    background: "#eef2ff",
+    border: "1px solid #c7d2fe",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+  } as React.CSSProperties,
+  infoTitle: {
+    fontSize: "0.95rem",
+    fontWeight: 700,
+    color: "#4338ca",
+    marginBottom: 12,
+  } as React.CSSProperties,
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 16,
+  } as React.CSSProperties,
+  infoCol: {} as React.CSSProperties,
+  infoColTitle: {
+    fontSize: "0.82rem",
+    fontWeight: 600,
+    color: "#4f46e5",
+    marginBottom: 6,
+  } as React.CSSProperties,
+  infoColText: {
+    fontSize: "0.78rem",
+    color: "#64748b",
+    lineHeight: 1.55,
+  } as React.CSSProperties,
+  infoFooter: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTop: "1px solid #c7d2fe",
+    fontSize: "0.82rem",
+    color: "#4338ca",
+    fontWeight: 600,
+  } as React.CSSProperties,
+  btn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: "12px 24px",
+    borderRadius: 99,
+    fontWeight: 600,
+    fontSize: "0.88rem",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    width: "100%",
+    background: "linear-gradient(135deg, #3b7ddd, #4facfe)",
+    color: "#fff",
+    boxSizing: "border-box" as const,
+  } as React.CSSProperties,
+  btnDisabled: {
+    opacity: 0.6,
+    cursor: "not-allowed",
+  } as React.CSSProperties,
+  alertSuccess: {
+    padding: "12px 16px",
+    borderRadius: 10,
+    background: "#dcfce7",
+    color: "#16a34a",
+    fontSize: "0.85rem",
+    fontWeight: 500,
+    marginBottom: 16,
+  } as React.CSSProperties,
+  alertError: {
+    padding: "12px 16px",
+    borderRadius: 10,
+    background: "#fee2e2",
+    color: "#dc2626",
+    fontSize: "0.85rem",
+    fontWeight: 500,
+    marginBottom: 16,
+  } as React.CSSProperties,
+  grid2: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 12,
+  } as React.CSSProperties,
+  checkboxGroup: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 8,
+    marginTop: 4,
+  } as React.CSSProperties,
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    cursor: "pointer",
+    fontSize: "0.82rem",
+    color: "#334155",
+  } as React.CSSProperties,
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 80,
+  } as React.CSSProperties,
+  spinner: {
+    width: 40,
+    height: 40,
+    border: "3px solid #e2e8f0",
+    borderTopColor: "#3b7ddd",
+    borderRadius: "50%",
+    animation: "spin 0.8s linear infinite",
+  } as React.CSSProperties,
+};
+
 export default function AIAgentTab() {
   const [config, setConfig] = useState<AIAgentConfig>({
     status: "off",
@@ -35,8 +223,8 @@ export default function AIAgentTab() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
+  const [saveError, setSaveError] = useState(false);
 
-  // Load config
   const loadConfig = useCallback(async () => {
     try {
       const res = await fetch("/api/ai-agent");
@@ -55,10 +243,10 @@ export default function AIAgentTab() {
     loadConfig();
   }, [loadConfig]);
 
-  // Save config
   const handleSave = async () => {
     setSaving(true);
     setSaveMsg("");
+    setSaveError(false);
     try {
       const res = await fetch("/api/ai-agent", {
         method: "POST",
@@ -67,12 +255,15 @@ export default function AIAgentTab() {
       });
       if (res.ok) {
         setSaveMsg("✅ Konfigurasi berhasil disimpan!");
+        setSaveError(false);
       } else {
         const err = await res.json();
         setSaveMsg(`❌ Gagal: ${err.error || "Unknown error"}`);
+        setSaveError(true);
       }
     } catch {
       setSaveMsg("❌ Gagal menyimpan. Coba lagi.");
+      setSaveError(true);
     } finally {
       setSaving(false);
     }
@@ -89,25 +280,26 @@ export default function AIAgentTab() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <span className="loading loading-spinner loading-lg text-primary" />
+      <div style={S.loadingContainer}>
+        <div style={S.spinner} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div className="card bg-base-100 shadow-sm border border-base-300">
-      <div className="card-body">
-        <h2 className="card-title text-lg mb-1">⚙️ AI Agent — Asisten WhatsApp</h2>
-        <p className="text-sm text-gray-500 -mt-2 mb-4">
+    <div style={S.card}>
+      <div style={S.cardBody}>
+        <h2 style={S.title}>⚙️ AI Agent — Asisten WhatsApp</h2>
+        <p style={S.subtitle}>
           Konfigurasi AI Agent untuk auto-reply WhatsApp pelanggan.
         </p>
 
         {/* STATUS */}
-        <div className="form-control w-full mb-3">
-          <label className="label"><span className="label-text font-semibold">Status</span></label>
+        <div style={S.formGroup}>
+          <label style={S.label}>Status</label>
           <select
-            className="select select-bordered w-full"
+            style={S.select}
             value={config.status}
             onChange={(e) => setConfig({ ...config, status: e.target.value })}
           >
@@ -117,11 +309,11 @@ export default function AIAgentTab() {
         </div>
 
         {/* NOMOR WA */}
-        <div className="form-control w-full mb-3">
-          <label className="label"><span className="label-text font-semibold">Nomor WA</span></label>
+        <div style={S.formGroup}>
+          <label style={S.label}>Nomor WA</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            style={S.input}
             placeholder="628xxxxxxxxxx"
             value={config.nomor_wa}
             onChange={(e) => setConfig({ ...config, nomor_wa: e.target.value })}
@@ -129,32 +321,32 @@ export default function AIAgentTab() {
         </div>
 
         {/* PESAN SAPAAN */}
-        <div className="form-control w-full mb-3">
-          <label className="label"><span className="label-text font-semibold">Pesan Sapaan</span></label>
+        <div style={S.formGroup}>
+          <label style={S.label}>Pesan Sapaan</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            style={S.input}
             value={config.pesan_sapaan}
             onChange={(e) => setConfig({ ...config, pesan_sapaan: e.target.value })}
           />
         </div>
 
         {/* JAM OPERASIONAL */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className="form-control">
-            <label className="label"><span className="label-text font-semibold">Jam Buka</span></label>
+        <div style={S.grid2}>
+          <div style={S.formGroup}>
+            <label style={S.label}>Jam Buka</label>
             <input
               type="time"
-              className="input input-bordered w-full"
+              style={S.input}
               value={config.jam_buka}
               onChange={(e) => setConfig({ ...config, jam_buka: e.target.value })}
             />
           </div>
-          <div className="form-control">
-            <label className="label"><span className="label-text font-semibold">Jam Tutup</span></label>
+          <div style={S.formGroup}>
+            <label style={S.label}>Jam Tutup</label>
             <input
               type="time"
-              className="input input-bordered w-full"
+              style={S.input}
               value={config.jam_tutup}
               onChange={(e) => setConfig({ ...config, jam_tutup: e.target.value })}
             />
@@ -162,123 +354,126 @@ export default function AIAgentTab() {
         </div>
 
         {/* HARI OPERASIONAL */}
-        <div className="form-control w-full mb-3">
-          <label className="label"><span className="label-text font-semibold">Hari Operasional</span></label>
-          <div className="flex flex-wrap gap-2">
+        <div style={S.formGroup}>
+          <label style={S.label}>Hari Operasional</label>
+          <div style={S.checkboxGroup}>
             {HARI.map((h) => (
-              <label key={h} className="flex items-center gap-1.5 cursor-pointer">
+              <label key={h} style={S.checkboxLabel}>
                 <input
                   type="checkbox"
-                  className="checkbox checkbox-primary checkbox-sm"
                   checked={config.hari_operasional.includes(h)}
                   onChange={() => toggleHari(h)}
+                  style={{ accentColor: "#3b7ddd", width: 16, height: 16 }}
                 />
-                <span className="text-sm">{HARI_LABEL[h]}</span>
+                {HARI_LABEL[h]}
               </label>
             ))}
           </div>
         </div>
 
         {/* AUTO-REPLY OFFLINE */}
-        <div className="form-control w-full mb-3">
-          <label className="label"><span className="label-text font-semibold">Auto-reply Offline</span></label>
+        <div style={S.formGroup}>
+          <label style={S.label}>Auto-reply Offline</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            style={S.input}
             value={config.auto_reply_offline}
             onChange={(e) => setConfig({ ...config, auto_reply_offline: e.target.value })}
           />
         </div>
 
-        {/* ===== SOUL.md & PROFILE.md INFO PANEL ===== */}
-        <div className="alert bg-indigo-50 border border-indigo-200 rounded-xl p-5 my-4">
-          <div className="flex items-start gap-3 w-full">
-            <span className="text-2xl">📖</span>
-            <div className="w-full">
-              <h3 className="font-semibold text-indigo-700 text-base mb-3">
+        {/* INFO PANEL */}
+        <div style={S.infoBox}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <span style={{ fontSize: "1.5rem" }}>📖</span>
+            <div style={{ flex: 1 }}>
+              <h3 style={S.infoTitle}>
                 Panduan Mengisi SOUL.md &amp; PROFILE.md
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div style={S.infoGrid}>
                 <div>
-                  <h4 className="font-semibold text-indigo-600 text-sm mb-1">🧠 SOUL.md — &quot;Jiwa&quot; AI Agent</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    File Markdown yang mendefinisikan <strong>kepribadian, identitas, nilai-nilai, gaya komunikasi, dan batasan</strong> AI Agent. 
-                    Ini adalah &quot;jiwa&quot; dari AI — siapa dia, bagaimana dia bicara, dan apa yang dia yakini.
+                  <h4 style={S.infoColTitle}>🧠 SOUL.md — "Jiwa" AI Agent</h4>
+                  <p style={S.infoColText}>
+                    File Markdown yang mendefinisikan <strong>kepribadian, identitas, nilai-nilai, gaya komunikasi, dan batasan</strong> AI Agent.
+                    Ini adalah "jiwa" dari AI — siapa dia, bagaimana dia bicara, dan apa yang dia yakini.
                   </p>
-                  <p className="text-xs text-gray-400 mt-2">📌 Isi: identitas AI, tone bicara, aturan, topik, batasan etika.</p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-indigo-600 text-sm mb-1">👤 PROFILE.md — &quot;Memori&quot; Bisnis</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    File Markdown yang berisi <strong>informasi tentang bisnis, pemilik, target customer, produk/layanan, preferensi, 
+                  <h4 style={S.infoColTitle}>👤 PROFILE.md — "Memori" Bisnis</h4>
+                  <p style={S.infoColText}>
+                    File Markdown yang berisi <strong>informasi tentang bisnis, pemilik, target customer, produk/layanan, preferensi,
                     dan konteks</strong> yang perlu diketahui AI saat berinteraksi.
                   </p>
-                  <p className="text-xs text-gray-400 mt-2">📌 Isi: nama bisnis, produk, target pasar, jam operasional, FAQ.</p>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-indigo-200">
-                <p className="text-sm text-indigo-700">
-                  <strong>💡 Cara pakai:</strong> Isi kedua field dengan format Markdown (.md). 
-                  Semakin detail, AI Agent semakin natural. Klik <strong>Simpan</strong> setelah selesai.
-                </p>
-              </div>
+              <p style={S.infoFooter}>
+                💡 Cara pakai: Isi kedua field dengan format Markdown (.md).
+                Semakin detail, AI Agent semakin natural. Klik Simpan setelah selesai.
+              </p>
             </div>
           </div>
         </div>
 
         {/* SOUL.md */}
-        <div className="form-control w-full mb-4">
-          <label className="label" htmlFor="soul_md">
-            <span className="label-text font-semibold text-base">🧠 SOUL.md</span>
-            <span className="label-text-alt text-gray-400">Kepribadian AI Agent</span>
+        <div style={S.formGroup}>
+          <label style={S.label}>
+            🧠 SOUL.md
+            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>Kepribadian AI Agent</span>
           </label>
           <textarea
-            id="soul_md"
-            className="textarea textarea-bordered h-52 font-mono text-sm leading-relaxed"
+            style={{ ...S.textarea, height: 200 }}
             placeholder={`# SOUL.md — Kepribadian AI Agent\n\n## Identitas\nAnda adalah [Nama AI], [deskripsi peran].\n\nMisi Anda adalah [tujuan utama AI].\n\n## Kepribadian Inti\n- [Sifat 1]\n- [Sifat 2]\n\n## Gaya Berkomunikasi\n- [Aturan komunikasi 1]\n\n## Batasan\n- [Hal yang tidak boleh dilakukan]`}
             value={config.soul_md}
             onChange={(e) => setConfig({ ...config, soul_md: e.target.value })}
           />
-          <label className="label">
-            <span className="label-text-alt text-gray-400">Definisikan identitas, nilai, gaya komunikasi, dan panduan perilaku AI.</span>
-            <span className="label-text-alt text-gray-400">Format: Markdown</span>
-          </label>
+          <div style={S.labelHint}>Definisikan identitas, nilai, gaya komunikasi, dan panduan perilaku AI. Format: Markdown</div>
         </div>
 
         {/* PROFILE.md */}
-        <div className="form-control w-full mb-6">
-          <label className="label" htmlFor="profile_md">
-            <span className="label-text font-semibold text-base">👤 PROFILE.md</span>
-            <span className="label-text-alt text-gray-400">Profil Bisnis / Pengguna</span>
+        <div style={S.formGroup}>
+          <label style={S.label}>
+            👤 PROFILE.md
+            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>Profil Bisnis / Pengguna</span>
           </label>
           <textarea
-            id="profile_md"
-            className="textarea textarea-bordered h-44 font-mono text-sm leading-relaxed"
+            style={{ ...S.textarea, height: 160 }}
             placeholder={`# PROFILE.md — Profil Bisnis\n\n## Identity\n- **Nama:** [Nama Bisnis/Pemilik]\n- **Bisnis:** [Jenis bisnis]\n\n## Konteks\n- **Target customer:** [Siapa target]\n- **Produk/layanan:** [Apa yang dijual]\n- **Preferensi:** [Yang disukai/tidak]`}
             value={config.profile_md}
             onChange={(e) => setConfig({ ...config, profile_md: e.target.value })}
           />
-          <label className="label">
-            <span className="label-text-alt text-gray-400">Informasi user, bisnis, preferensi &amp; konteks yang perlu diketahui AI.</span>
-            <span className="label-text-alt text-gray-400">Format: Markdown</span>
-          </label>
+          <div style={S.labelHint}>Informasi user, bisnis, preferensi &amp; konteks yang perlu diketahui AI. Format: Markdown</div>
         </div>
 
-        {/* SAVE */}
+        {/* SAVE MESSAGE */}
         {saveMsg && (
-          <div className={`alert ${saveMsg.startsWith("✅") ? "alert-success" : "alert-error"} mb-3`}>
-            <span>{saveMsg}</span>
+          <div style={saveError ? S.alertError : S.alertSuccess}>
+            {saveMsg}
           </div>
         )}
+
+        {/* SAVE BUTTON */}
         <button
-          className="btn btn-primary w-full"
+          style={saving ? { ...S.btn, ...S.btnDisabled } : S.btn}
           onClick={handleSave}
           disabled={saving}
         >
-          {saving ? <span className="loading loading-spinner loading-sm" /> : null}
-          {saving ? " Menyimpan..." : "💾 Simpan"}
+          {saving ? (
+            <>
+              <div style={{
+                width: 18, height: 18,
+                border: "2px solid rgba(255,255,255,0.3)",
+                borderTopColor: "#fff",
+                borderRadius: "50%",
+                animation: "spin 0.6s linear infinite",
+              }} />
+              Menyimpan...
+            </>
+          ) : (
+            "💾 Simpan"
+          )}
         </button>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
