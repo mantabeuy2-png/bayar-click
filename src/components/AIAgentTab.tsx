@@ -382,66 +382,58 @@ export default function AIAgentTab() {
           />
         </div>
 
-        {/* INFO PANEL */}
-        <div style={S.infoBox}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <span style={{ fontSize: "1.5rem" }}>📖</span>
-            <div style={{ flex: 1 }}>
-              <h3 style={S.infoTitle}>
-                Panduan Mengisi SOUL.md &amp; PROFILE.md
-              </h3>
-              <div style={S.infoGrid}>
-                <div>
-                  <h4 style={S.infoColTitle}>🧠 SOUL.md — "Jiwa" AI Agent</h4>
-                  <p style={S.infoColText}>
-                    File Markdown yang mendefinisikan <strong>kepribadian, identitas, nilai-nilai, gaya komunikasi, dan batasan</strong> AI Agent.
-                    Ini adalah "jiwa" dari AI — siapa dia, bagaimana dia bicara, dan apa yang dia yakini.
-                  </p>
-                </div>
-                <div>
-                  <h4 style={S.infoColTitle}>👤 PROFILE.md — "Memori" Bisnis</h4>
-                  <p style={S.infoColText}>
-                    File Markdown yang berisi <strong>informasi tentang bisnis, pemilik, target customer, produk/layanan, preferensi,
-                    dan konteks</strong> yang perlu diketahui AI saat berinteraksi.
-                  </p>
-                </div>
-              </div>
-              <p style={S.infoFooter}>
-                💡 Cara pakai: Isi kedua field dengan format Markdown (.md).
-                Semakin detail, AI Agent semakin natural. Klik Simpan setelah selesai.
-              </p>
+        {/* INFO PANEL — compact */}
+        <div style={{ ...S.infoBox, padding: 14, marginBottom: 20 }}>
+          <details>
+            <summary style={{ cursor: "pointer", fontWeight: 600, color: "#4338ca", fontSize: "0.88rem" }}>
+              📖 Panduan SOUL.md &amp; PROFILE.md (klik untuk buka)
+            </summary>
+            <div style={{ marginTop: 12, fontSize: "0.8rem", color: "#64748b", lineHeight: 1.6 }}>
+              <p><strong>🧠 SOUL.md</strong> — kepribadian AI: identitas, tone bicara, nilai, aturan, batasan.</p>
+              <p><strong>👤 PROFILE.md</strong> — profil bisnis: nama, produk, target customer, FAQ, preferensi.</p>
+              <p style={{ marginTop: 8 }}>💡 Format Markdown. Semakin detail, AI makin natural.</p>
             </div>
-          </div>
+          </details>
         </div>
 
-        {/* SOUL.md */}
-        <div style={S.formGroup}>
-          <label style={S.label}>
+        {/* SOUL.md — BIG & PROMINENT */}
+        <div style={{ ...S.formGroup, marginBottom: 20 }}>
+          <label style={{ ...S.label, fontSize: "0.9rem", marginBottom: 8 }}>
             🧠 SOUL.md
-            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>Kepribadian AI Agent</span>
+            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>— Kepribadian & Panduan AI Agent</span>
           </label>
           <textarea
-            style={{ ...S.textarea, height: 200 }}
+            style={{
+              ...S.textarea,
+              minHeight: 280,
+              fontSize: "0.8rem",
+              border: "2px solid #6366f1",
+              background: "#fafafe",
+            }}
             placeholder={`# SOUL.md — Kepribadian AI Agent\n\n## Identitas\nAnda adalah [Nama AI], [deskripsi peran].\n\nMisi Anda adalah [tujuan utama AI].\n\n## Kepribadian Inti\n- [Sifat 1]\n- [Sifat 2]\n\n## Gaya Berkomunikasi\n- [Aturan komunikasi 1]\n\n## Batasan\n- [Hal yang tidak boleh dilakukan]`}
             value={config.soul_md}
             onChange={(e) => setConfig({ ...config, soul_md: e.target.value })}
           />
-          <div style={S.labelHint}>Definisikan identitas, nilai, gaya komunikasi, dan panduan perilaku AI. Format: Markdown</div>
         </div>
 
-        {/* PROFILE.md */}
-        <div style={S.formGroup}>
-          <label style={S.label}>
+        {/* PROFILE.md — BIG & PROMINENT */}
+        <div style={{ ...S.formGroup, marginBottom: 24 }}>
+          <label style={{ ...S.label, fontSize: "0.9rem", marginBottom: 8 }}>
             👤 PROFILE.md
-            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>Profil Bisnis / Pengguna</span>
+            <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 8 }}>— Profil Bisnis & Konteks Pengguna</span>
           </label>
           <textarea
-            style={{ ...S.textarea, height: 160 }}
+            style={{
+              ...S.textarea,
+              minHeight: 240,
+              fontSize: "0.8rem",
+              border: "2px solid #8b5cf6",
+              background: "#fafafe",
+            }}
             placeholder={`# PROFILE.md — Profil Bisnis\n\n## Identity\n- **Nama:** [Nama Bisnis/Pemilik]\n- **Bisnis:** [Jenis bisnis]\n\n## Konteks\n- **Target customer:** [Siapa target]\n- **Produk/layanan:** [Apa yang dijual]\n- **Preferensi:** [Yang disukai/tidak]`}
             value={config.profile_md}
             onChange={(e) => setConfig({ ...config, profile_md: e.target.value })}
           />
-          <div style={S.labelHint}>Informasi user, bisnis, preferensi &amp; konteks yang perlu diketahui AI. Format: Markdown</div>
         </div>
 
         {/* SAVE MESSAGE */}

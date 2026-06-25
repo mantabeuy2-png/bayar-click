@@ -11,7 +11,9 @@
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
+    "crypto-js": "^4.2.0",
     "next": "^16.2.9",
+    "pg": "^8.22.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

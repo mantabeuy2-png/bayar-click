@@ -4,6 +4,15 @@
 -- Execute: Supabase SQL Editor
 -- ============================================================
 
+-- 0. Helper function (if not exists)
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
 -- 1. AI AGENT CONFIGS table
 create table if not exists ai_agent_configs (
   id uuid primary key default gen_random_uuid(),
