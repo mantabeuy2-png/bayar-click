@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseClientClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import AIAgentTab from "@/components/AIAgentTab";
 
 type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "ai-agent";
 type ModalMode = "payment-link" | "merchant" | null;
@@ -247,6 +246,10 @@ export default function DashboardPage() {
 
       {/* ===== MAIN CONTENT ===== */}
       <main style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+        {/* DEPLOY TEST BANNER */}
+        <div style={{ background: "#fef3c7", border: "2px solid #f59e0b", borderRadius: 12, padding: "12px 20px", marginBottom: 20, fontWeight: 700, color: "#92400e" }}>
+          🚀 DEPLOY VERIFIED — {new Date().toISOString()}
+        </div>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
           <div>
@@ -537,9 +540,28 @@ export default function DashboardPage() {
 
         {/* AI AGENT TAB */}
         {activeTab === "ai-agent" && (
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 24 }}>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>🤖 AI Agent Active</h3>
-            <AIAgentTab />
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 28 }}>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>🤖 AI Agent — Asisten WhatsApp</h2>
+            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 24 }}>
+              Konfigurasi AI Agent untuk auto-reply WhatsApp pelanggan.
+            </p>
+            <div style={{ background: "#eef2ff", border: "2px solid #6366f1", borderRadius: 12, padding: 20, marginBottom: 20 }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#4338ca", marginBottom: 12 }}>🧠 SOUL.md — Kepribadian AI Agent</h3>
+              <textarea 
+                style={{ width: "100%", minHeight: 200, padding: 14, borderRadius: 10, border: "1px solid #c7d2fe", fontSize: "0.82rem", fontFamily: "monospace", resize: "vertical", background: "#fafafe", boxSizing: "border-box" }}
+                placeholder="# SOUL.md — Kepribadian AI Agent&#10;&#10;## Identitas&#10;Anda adalah [Nama AI], [deskripsi peran].&#10;&#10;## Kepribadian Inti&#10;- [Sifat 1]&#10;- [Sifat 2]"
+              />
+            </div>
+            <div style={{ background: "#f3e8ff", border: "2px solid #8b5cf6", borderRadius: 12, padding: 20, marginBottom: 24 }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#6d28d9", marginBottom: 12 }}>👤 PROFILE.md — Profil Bisnis</h3>
+              <textarea 
+                style={{ width: "100%", minHeight: 160, padding: 14, borderRadius: 10, border: "1px solid #d8b4fe", fontSize: "0.82rem", fontFamily: "monospace", resize: "vertical", background: "#fafafe", boxSizing: "border-box" }}
+                placeholder="# PROFILE.md — Profil Bisnis&#10;&#10;## Identity&#10;- **Nama:** [Nama Bisnis]&#10;- **Bisnis:** [Jenis bisnis]"
+              />
+            </div>
+            <button style={{ padding: "12px 28px", borderRadius: 99, border: "none", background: "linear-gradient(135deg, #3b7ddd, #4facfe)", color: "#fff", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
+              💾 Simpan
+            </button>
           </div>
         )}
 
