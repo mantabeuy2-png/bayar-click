@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseClientClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
-type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "ai-agent";
+type Tab = "overview" | "merchants" | "payment-links" | "transactions" | "whatsapp" | "ai-agent";
 type ModalMode = "payment-link" | "merchant" | null;
 
 export default function DashboardPage() {
@@ -26,6 +26,20 @@ export default function DashboardPage() {
   const [paymentLinks, setPaymentLinks] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
+  // AI Agent
+  const [aiSoul, setAiSoul] = useState("");
+  const [aiProfile, setAiProfile] = useState("");
+  const [aiSaving, setAiSaving] = useState(false);
+  const [aiMsg, setAiMsg] = useState("");
+  const [aiError, setAiError] = useState(false);
+  // WhatsApp
+  const [waTo, setWaTo] = useState("");
+  const [waMsg, setWaMsg] = useState("");
+  const [waSending, setWaSending] = useState(false);
+  const [waResult, setWaResult] = useState("");
+  const [waBlastNumbers, setWaBlastNumbers] = useState("");
+  const [waBlastMsg, setWaBlastMsg] = useState("");
+  const [waBlastResult, setWaBlastResult] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -132,11 +146,89 @@ export default function DashboardPage() {
     router.refresh();
   };
 
+  // WhatsApp — send single message
+  const sendWaMessage = async () => {
+    if (!waTo || !waMsg) return;
+    setWaSending(true); setWaResult("");
+    try {
+      const res = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chatId: waTo, text: waMsg }),
+      });
+      const data = await res.json();
+      setWaResult(data.success ? "✅ Pesan terkirim!" : `❌ Gagal: ${data.error}`);
+    } catch (e: any) {
+      setWaResult(`❌ Error: ${e.message}`);
+    }
+    setWaSending(false);
+  };
+
+  // WhatsApp — blast message
+  const sendWaBlast = async () => {
+    if (!waBlastNumbers || !waBlastMsg) return;
+    setWaSending(true); setWaBlastResult("");
+    try {
+      const chatIds = waBlastNumbers.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+      const res = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "blast", chatIds, text: waBlastMsg }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const r = data.result;
+        setWaBlastResult(`✅ Terkirim: ${r.success.length}, Gagal: ${r.failed.length}`);
+      } else {
+        setWaBlastResult(`❌ Gagal: ${data.error}`);
+      }
+    } catch (e: any) {
+      setWaBlastResult(`❌ Error: ${e.message}`);
+    }
+    setWaSending(false);
+  };
+
+  // AI Agent — load & save
+  const loadAIConfig = async () => {
+    if (!user?.id) return;
+    const supabase = createSupabaseClientClient();
+    const { data } = await supabase.from("ai_agent_configs").select("soul_md, profile_md").eq("user_id", user.id).single();
+    if (data) {
+      setAiSoul(data.soul_md || "");
+      setAiProfile(data.profile_md || "");
+    }
+  };
+
+  const saveAIConfig = async () => {
+    setAiSaving(true);
+    setAiMsg(""); setAiError(false);
+    const supabase = createSupabaseClientClient();
+    const { error } = await supabase.from("ai_agent_configs").upsert({
+      user_id: user!.id,
+      soul_md: aiSoul,
+      profile_md: aiProfile,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+    if (error) {
+      setAiMsg("❌ Gagal: " + error.message);
+      setAiError(true);
+    } else {
+      setAiMsg("✅ Konfigurasi berhasil disimpan!");
+      setAiError(false);
+    }
+    setAiSaving(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === "ai-agent" && user) loadAIConfig();
+  }, [activeTab, user]);
+
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: "overview", label: "Overview", icon: "📊" },
     { id: "merchants", label: "Merchant QRIS", icon: "🏪" },
     { id: "payment-links", label: "Payment Links", icon: "🔗" },
     { id: "transactions", label: "Transaksi", icon: "💳" },
+    { id: "whatsapp", label: "WhatsApp", icon: "💬" },
     { id: "ai-agent", label: "AI Agent", icon: "🤖" },
   ];
 
@@ -262,6 +354,7 @@ export default function DashboardPage() {
               {activeTab === "payment-links" && "Buat dan kelola link pembayaran"}
               {activeTab === "transactions" && "Semua transaksi pembayaran"}
               {activeTab === "ai-agent" && "Konfigurasi AI Agent WhatsApp — SOUL.md & PROFILE.md"}
+              {activeTab === "whatsapp" && "Kirim pesan WhatsApp ke pelanggan & blast message"}
             </p>
           </div>
           {(activeTab === "payment-links" || activeTab === "merchants") && (
@@ -538,30 +631,191 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* WHATSAPP TAB */}
+        {activeTab === "whatsapp" && (
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 28 }}>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0d1526", marginBottom: 4 }}>💬 WhatsApp CS</h2>
+            <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 24 }}>
+              Kirim pesan WhatsApp langsung ke pelanggan. Pastikan WAHA sudah berjalan di server.
+            </p>
+
+            {/* Send Single Message */}
+            <div style={{ marginBottom: 32, paddingBottom: 24, borderBottom: "1px solid #e2e8f0" }}>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 600, color: "#334155", marginBottom: 16 }}>📩 Kirim Pesan</h3>
+              <div style={{ display: "grid", gap: 12, maxWidth: 480 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: 4 }}>Nomor HP</label>
+                  <input
+                    type="text"
+                    value={waTo}
+                    onChange={(e) => setWaTo(e.target.value)}
+                    placeholder="6281234567890"
+                    style={{
+                      width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1",
+                      fontSize: "0.85rem", outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: 4 }}>Pesan</label>
+                  <textarea
+                    value={waMsg}
+                    onChange={(e) => setWaMsg(e.target.value)}
+                    placeholder="Tulis pesan di sini..."
+                    rows={4}
+                    style={{
+                      width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1",
+                      fontSize: "0.85rem", resize: "vertical", outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <button
+                  className="btn btn-primary"
+                  onClick={sendWaMessage}
+                  disabled={waSending || !waTo || !waMsg}
+                  style={{ padding: "10px 24px", fontSize: "0.85rem", alignSelf: "flex-start" }}
+                >
+                  {waSending ? "⏳ Mengirim..." : "🚀 Kirim"}
+                </button>
+                {waResult && (
+                  <div style={{ fontSize: "0.82rem", color: waResult.includes("✅") ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{waResult}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Blast Message */}
+            <div>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 600, color: "#334155", marginBottom: 16 }}>📢 Blast Message</h3>
+              <div style={{ display: "grid", gap: 12, maxWidth: 480 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: 4 }}>Nomor HP (pisah koma atau baris baru)</label>
+                  <textarea
+                    value={waBlastNumbers}
+                    onChange={(e) => setWaBlastNumbers(e.target.value)}
+                    placeholder={"6281234567890\n6289876543210"}
+                    rows={4}
+                    style={{
+                      width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1",
+                      fontSize: "0.85rem", resize: "vertical", outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: 4 }}>Pesan Blast</label>
+                  <textarea
+                    value={waBlastMsg}
+                    onChange={(e) => setWaBlastMsg(e.target.value)}
+                    placeholder="Tulis pesan blast di sini..."
+                    rows={4}
+                    style={{
+                      width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #cbd5e1",
+                      fontSize: "0.85rem", resize: "vertical", outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <button
+                  className="btn btn-primary"
+                  onClick={sendWaBlast}
+                  disabled={waSending || !waBlastNumbers || !waBlastMsg}
+                  style={{ padding: "10px 24px", fontSize: "0.85rem", alignSelf: "flex-start" }}
+                >
+                  {waSending ? "⏳ Mengirim..." : "📢 Kirim Blast"}
+                </button>
+                {waBlastResult && (
+                  <div style={{ fontSize: "0.82rem", color: waBlastResult.includes("✅") ? "#16a34a" : "#dc2626", fontWeight: 600 }}>{waBlastResult}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Info WAHA */}
+            <div style={{ marginTop: 32, padding: 16, background: "#f0f9ff", borderRadius: 10, border: "1px solid #bae6fd" }}>
+              <p style={{ fontSize: "0.78rem", color: "#0369a1", margin: 0 }}>
+                ⚡ <strong>WAHA WhatsApp API</strong> — Pastikan WAHA sudah running di server (Docker).<br />
+                Endpoint API: <code>{process.env.WAHA_URL || "http://localhost:3000"}</code><br />
+                Webhook: <code>/api/whatsapp/webhook</code>
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* AI AGENT TAB */}
         {activeTab === "ai-agent" && (
           <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 28 }}>
-            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0d1526", marginBottom: 8 }}>🤖 AI Agent — Asisten WhatsApp</h2>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#0d1526", marginBottom: 4 }}>🤖 AI Agent — Asisten WhatsApp</h2>
             <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: 24 }}>
-              Konfigurasi AI Agent untuk auto-reply WhatsApp pelanggan.
+              Konfigurasi kepribadian (SOUL.md) dan profil bisnis (PROFILE.md) untuk AI Agent WhatsApp kamu.
             </p>
-            <div style={{ background: "#eef2ff", border: "2px solid #6366f1", borderRadius: 12, padding: 20, marginBottom: 20 }}>
-              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#4338ca", marginBottom: 12 }}>🧠 SOUL.md — Kepribadian AI Agent</h3>
-              <textarea 
-                style={{ width: "100%", minHeight: 200, padding: 14, borderRadius: 10, border: "1px solid #c7d2fe", fontSize: "0.82rem", fontFamily: "monospace", resize: "vertical", background: "#fafafe", boxSizing: "border-box" }}
-                placeholder="# SOUL.md — Kepribadian AI Agent&#10;&#10;## Identitas&#10;Anda adalah [Nama AI], [deskripsi peran].&#10;&#10;## Kepribadian Inti&#10;- [Sifat 1]&#10;- [Sifat 2]"
+
+            {/* SOUL.md */}
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+                🧠 SOUL.md <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 6 }}>— Kepribadian AI</span>
+              </label>
+              <textarea
+                style={{
+                  width: "100%", minHeight: 280, padding: "12px 14px",
+                  borderRadius: 10, border: "2px solid #6366f1",
+                  fontSize: "0.82rem", fontFamily: "'SF Mono', 'Fira Code', Menlo, Consolas, monospace",
+                  lineHeight: 1.6, outline: "none", resize: "vertical",
+                  background: "#fafafe", color: "#0d1526", boxSizing: "border-box",
+                }}
+                placeholder={`# SOUL.md — Kepribadian AI Agent\n\n## Identitas\nAnda adalah [Nama AI], [deskripsi peran].\n\n## Kepribadian Inti\n- [Sifat 1]\n- [Sifat 2]\n\n## Gaya Berkomunikasi\n- [Aturan komunikasi 1]\n\n## Batasan\n- [Hal yang tidak boleh dilakukan]`}
+                value={aiSoul}
+                onChange={(e) => setAiSoul(e.target.value)}
               />
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 4 }}>Format Markdown. Definisi: identitas, nilai, gaya komunikasi, batasan AI.</div>
             </div>
-            <div style={{ background: "#f3e8ff", border: "2px solid #8b5cf6", borderRadius: 12, padding: 20, marginBottom: 24 }}>
-              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "#6d28d9", marginBottom: 12 }}>👤 PROFILE.md — Profil Bisnis</h3>
-              <textarea 
-                style={{ width: "100%", minHeight: 160, padding: 14, borderRadius: 10, border: "1px solid #d8b4fe", fontSize: "0.82rem", fontFamily: "monospace", resize: "vertical", background: "#fafafe", boxSizing: "border-box" }}
-                placeholder="# PROFILE.md — Profil Bisnis&#10;&#10;## Identity&#10;- **Nama:** [Nama Bisnis]&#10;- **Bisnis:** [Jenis bisnis]"
+
+            {/* PROFILE.md */}
+            <div style={{ marginBottom: 28 }}>
+              <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 600, color: "#334155", marginBottom: 8 }}>
+                👤 PROFILE.md <span style={{ fontWeight: 400, color: "#94a3b8", marginLeft: 6 }}>— Profil Bisnis</span>
+              </label>
+              <textarea
+                style={{
+                  width: "100%", minHeight: 240, padding: "12px 14px",
+                  borderRadius: 10, border: "2px solid #8b5cf6",
+                  fontSize: "0.82rem", fontFamily: "'SF Mono', 'Fira Code', Menlo, Consolas, monospace",
+                  lineHeight: 1.6, outline: "none", resize: "vertical",
+                  background: "#fafafe", color: "#0d1526", boxSizing: "border-box",
+                }}
+                placeholder={`# PROFILE.md — Profil Bisnis\n\n## Identity\n- **Nama:** [Nama Bisnis/Pemilik]\n- **Bisnis:** [Jenis bisnis]\n\n## Konteks\n- **Target customer:** [Siapa target]\n- **Produk/layanan:** [Apa yang dijual]`}
+                value={aiProfile}
+                onChange={(e) => setAiProfile(e.target.value)}
               />
+              <div style={{ fontSize: "0.72rem", color: "#94a3b8", marginTop: 4 }}>Format Markdown. Informasi bisnis, owner, target, produk.</div>
             </div>
-            <button style={{ padding: "12px 28px", borderRadius: 99, border: "none", background: "linear-gradient(135deg, #3b7ddd, #4facfe)", color: "#fff", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
-              💾 Simpan
+
+            {/* Save */}
+            {aiMsg && (
+              <div style={{
+                padding: "12px 16px", borderRadius: 10, marginBottom: 16,
+                background: aiError ? "#fee2e2" : "#dcfce7",
+                color: aiError ? "#dc2626" : "#16a34a",
+                fontSize: "0.85rem", fontWeight: 500,
+              }}>{aiMsg}</div>
+            )}
+            <button
+              onClick={saveAIConfig}
+              disabled={aiSaving}
+              style={{
+                width: "100%", padding: "12px 28px", borderRadius: 99,
+                fontWeight: 600, fontSize: "0.88rem", border: "none", cursor: "pointer",
+                background: aiSaving ? "#94a3b8" : "linear-gradient(135deg, #3b7ddd, #4facfe)",
+                color: "#fff", opacity: aiSaving ? 0.7 : 1,
+              }}
+            >
+              {aiSaving ? "⏳ Menyimpan..." : "💾 Simpan Konfigurasi"}
             </button>
+
+            {/* Panduan */}
+            <details style={{ marginTop: 20, cursor: "pointer" }}>
+              <summary style={{ fontSize: "0.82rem", fontWeight: 600, color: "#64748b" }}>📖 Cara mengisi</summary>
+              <div style={{ marginTop: 10, fontSize: "0.8rem", color: "#64748b", lineHeight: 1.7 }}>
+                <p><strong>🧠 SOUL.md</strong> — definisi "jiwa" AI: identitas, nilai, gaya komunikasi, topik keahlian, dan batasan.</p>
+                <p><strong>👤 PROFILE.md</strong> — informasi bisnis: nama toko, pemilik, produk, target customer, FAQ, preferensi.</p>
+              </div>
+            </details>
           </div>
         )}
 
